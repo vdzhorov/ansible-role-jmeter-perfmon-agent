@@ -1,0 +1,46 @@
+---
+
+- name: Check if agent already exists
+  stat:
+    path: '{{ jmeter_perfmon_install_dest }}/ServerAgent-{{ jmeter_perfmon_version }}/ServerAgent.jar'
+  register: jmeter_perfmon_jar
+
+- name: Make sure download and installation destinations exist
+  file:
+    path: '{{ item }}'
+    state: directory
+    recurse: yes
+  loop:
+    - '{{ jmeter_perfmon_install_dest }}'
+    - '{{ jmeter_perfmon_download_dest }}'
+  when: not jmeter_perfmon_jar.stat.exists
+
+- name: Download Jmeter Perfmon agent
+  get_url:
+    url: 'https://github.com/undera/perfmon-agent/releases/download/2.2.3/ServerAgent-2.2.3.zip'
+    dest: '{{ jmeter_perfmon_download_dest }}'
+  when: not jmeter_perfmon_jar.stat.exists
+
+- name: Unarchive downloaded archive
+  unarchive:
+    src: '{{ jmeter_perfmon_download_dest }}/ServerAgent-{{ jmeter_perfmon_version }}.zip'
+    dest: '{{ jmeter_perfmon_install_dest }}'
+    remote_src: yes
+    owner: root
+    group: root
+  when: not jmeter_perfmon_jar.stat.exists
+
+- name: Clean up download destination
+  file:
+    path: '{{ jmeter_perfmon_download_dest }}'
+    state: absent
+  when: not jmeter_perfmon_jar.stat.exists
+
+- name: Set up systemd unit file
+  template:
+    src: 'jmeter-perfmon-agent.service.j2'
+    dest: '/etc/systemd/system/jmeter-perfmon-agent.service'
+    owner: root
+    group: root
+    mode: 0644
+  notify: Reload Systemd
