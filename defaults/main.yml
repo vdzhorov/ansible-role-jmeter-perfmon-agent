@@ -1,0 +1,13 @@
+---
+
+# Common vars
+jmeter_perfmon_version: '2.2.3'
+jmeter_perfmon_download_url: 'https://github.com/undera/perfmon-agent/releases/download/{{ jmeter_perfmon_version }}/ServerAgent-{{ jmeter_perfmon_version }}.zip'
+jmeter_perfmon_download_dest: '/tmp/jmeter-perfmon-agent.zip'
+jmeter_perfmon_install_dest: '/opt/jmeter-perfmon-agent'
+
+# Systemd vars
+jmeter_pid_file_location: '/var/run/jmeter-perfmon'
+jmeter_port_type: 'tcp' # Can be udp or tcp. Depending on which protocol is used, below ports are being taken into account.
+jmeter_tcp_port: 4444
+jmeter_udp_port: 4444
