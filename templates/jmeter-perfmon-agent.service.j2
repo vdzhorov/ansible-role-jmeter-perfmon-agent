@@ -1,0 +1,17 @@
+[Unit]
+Description=Jmeter perfmon agent
+After=network.target
+
+[Service]
+Type=forking
+SuccessExitStatus=143
+User=root
+Group=root
+LimitNOFILE=100000
+PIDFile={{ jmeter_pid_file_location }}/jmeter.pid
+WorkingDirectory={{ jmeter_perfmon_install_dest }}/ServerAgent-{{ jmeter_perfmon_version }}/
+ExecStart=/bin/sh -c '/usr/bin/java -jar CMDRunner.jar {% if 'tcp' in jmeter_port_type %}--tcp-port {{ jmeter_tcp_port }}{% elif 'udp' in jmeter_port_type %}--udp-port {{ jmeter_udp_port }}{% endif %} --tool PerfMonAgent "$@" &'
+ExecStop=/bin/sh -c '/usr/bin/pkill -f -9 CMDRunner.jar'
+
+[Install]
+WantedBy=multi-user.target
